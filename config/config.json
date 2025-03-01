@@ -1,0 +1,43 @@
+{
+    "figure": {
+        "size": [12, 10],
+        "limits": {
+            "use_custom_limits": true,
+            "x": {
+                "min": 0,
+                "max": 235
+            },
+            "y": {
+                "min": 0,
+                "max": 235
+            }
+        },
+        "dots_per_inch": 400,
+        "marker_size": 0.1,
+        "z_expansion": 1,
+        "views": [
+            [45, 30],
+            [135, 30],
+            [225, 30],
+            [315, 30]
+        ]
+    },
+
+    "grid": {
+        "shape": {
+            "x": 100,
+            "y": 100
+        }
+    },
+
+    "color_bar": {
+        "shrink": 0.5,
+        "pad": 0.1,
+        "aspect": 10
+    },
+
+    "z_probe_bias": {
+        "x": -32,
+        "y": -25
+    }
+}

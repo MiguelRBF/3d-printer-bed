@@ -1,0 +1,8 @@
+*
+
+# Keep examples folder
+!examples
+!examples/**
+
+# Keep this file
+!.gitignore

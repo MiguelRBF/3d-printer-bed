@@ -1,0 +1,8 @@
+*
+
+# Default config file and its doc
+!config.md
+!config.json
+
+# Keep this file
+!.gitignore
