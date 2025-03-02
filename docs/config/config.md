@@ -9,7 +9,8 @@
     "figure": {                         // Figure related configuration
         "size": [12, 10],               // Set the figure size on inches
         "limits": {                     // To setup the limits
-            "use_custom_limits": true,  // Flag to indicate wheter or not to use the custom limits provided below
+            "use_custom_limits": true,  // Flag to indicate whether or not to use the custom limits provided below
+            "use_custom_z_limits": false,  // Flag to indicate whether or not to use the custom limits provided below
             "x": {                      // x limits
                 "min": 0,
                 "max": 235
@@ -17,6 +18,10 @@
             "y": {                      // y limits
                 "min": 0,
                 "max": 235
+            },
+            "z": {
+                "min": -0.11,
+                "max": 0.11
             }
         },
         "dots_per_inch": 400,           // resolution, pixels per inch

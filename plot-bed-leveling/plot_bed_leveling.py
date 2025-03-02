@@ -37,11 +37,14 @@ class Config:
         ]
 
         class Limits:
-            use_custom_limits = False,
+            use_custom_xy_limits = False,
+            use_custom_z_limits = False,
             x_max = 235,
             x_min = 0,
             y_max = 235,
             y_min = 0,
+            z_max = 235,
+            z_min = 0,
 
     class Grid:
         class Shape:
@@ -64,11 +67,14 @@ class Config:
         Config.Figure.dots_per_inch = json_dict["figure"]["dots_per_inch"]
         Config.Figure.marker_size = json_dict["figure"]["marker_size"]
         Config.Figure.z_expansion = json_dict["figure"]["z_expansion"]
-        Config.Figure.Limits.use_custom_limits = json_dict["figure"]["limits"]["use_custom_limits"]
+        Config.Figure.Limits.use_custom_xy_limits = json_dict["figure"]["limits"]["use_custom_xy_limits"]
+        Config.Figure.Limits.use_custom_z_limits = json_dict["figure"]["limits"]["use_custom_z_limits"]
         Config.Figure.Limits.x_min = json_dict["figure"]["limits"]["x"]["min"]
         Config.Figure.Limits.x_max = json_dict["figure"]["limits"]["x"]["max"]
         Config.Figure.Limits.y_min = json_dict["figure"]["limits"]["y"]["min"]
         Config.Figure.Limits.y_max = json_dict["figure"]["limits"]["y"]["max"]
+        Config.Figure.Limits.z_min = json_dict["figure"]["limits"]["z"]["min"]
+        Config.Figure.Limits.z_max = json_dict["figure"]["limits"]["z"]["max"]
 
         # Store grid parameters
         Config.Grid.Shape.x = json_dict["grid"]["shape"]["x"]
@@ -85,7 +91,7 @@ class Config:
 
 # --------- Data management functions ---------
 
-def extract_df_coordinates(csv_df: DataFrame) -> tuple[ndarray, ndarray]:
+def extract_df_coordinates(csv_df: DataFrame) -> tuple[ndarray, ndarray, ndarray]:
     '''Extract csv data coordinates as numpy array'''
     return csv_df.iloc[:, 1].values, csv_df.iloc[:, 2].values, csv_df.iloc[:, 3].values
 
@@ -116,11 +122,8 @@ def prepare_plot():
 
 def scale_xy_axis(ax: Axes, x: ndarray, y: ndarray):
     '''Set x-y axis limits to mantain proportional scaling between the x and y axes'''
-    
-    # Configure x-y limits
-    # ---------------------------------
-
-    if Config.Figure.Limits.use_custom_limits:
+    # Custom xy limits defined by configuration
+    if Config.Figure.Limits.use_custom_xy_limits:
         ax.set_xlim(
             Config.Figure.Limits.x_min,
             Config.Figure.Limits.x_max)
@@ -181,14 +184,20 @@ def scale_xy_axis(ax: Axes, x: ndarray, y: ndarray):
     
 def scale_z_axis(ax: Axes, z: ndarray):
     '''Scale Z axis taking into acount the z expansion provided by configuration'''
-    # Get z limits and range
-    z_min, z_max = np.min(z), np.max(z)
-    z_range = z_max - z_min
+    # Custom z limits defined by configuration
+    if Config.Figure.Limits.use_custom_z_limits:
+        ax.set_zlim(
+            Config.Figure.Limits.z_min,
+            Config.Figure.Limits.z_max)
+    else:
+        # Get z limits and range
+        z_min, z_max = np.min(z), np.max(z)
+        z_range = z_max - z_min
 
-    # Set new Z-limits to make the plot "flatter" by expanding the Z range
-    ax.set_zlim(
-        z_min - Config.Figure.z_expansion * z_range,
-        z_max + Config.Figure.z_expansion * z_range)
+        # Set new Z-limits to make the plot "flatter" by expanding the Z range
+        ax.set_zlim(
+            z_min - Config.Figure.z_expansion * z_range,
+            z_max + Config.Figure.z_expansion * z_range)
 
 def add_color_bar(fig: Figure, ax: Axes, surf):
     '''Add a color bar to the plot'''
@@ -197,6 +206,39 @@ def add_color_bar(fig: Figure, ax: Axes, surf):
                              aspect=Config.ColorBar.aspect,
                              pad=Config.ColorBar.pad)
     color_bar.set_label('Z Height (mm)', rotation=270, labelpad=15)
+
+def add_statistics_metrics(ax: Axes, reference_points_df: DataFrame):
+    ''''''
+    x, y, z = extract_df_coordinates(reference_points_df)
+    x_min, x_max = x.min(), x.max()
+    y_min, y_max = y.min(), y.max()
+    z_min, z_max = z.min(), z.max()
+
+    z_mean = z.mean()
+    z_std = z.std()
+
+    # Print metrics
+    print(f"x min: {x_min}")
+    print(f"x max: {x_max}")
+    print(f"y min: {y_min}")
+    print(f"y max: {y_max}")
+    print(f"z min: {z_min}")
+    print(f"z max: {z_max}")
+    print(f"z mean:{z_mean}")
+    print(f"z std: {z_std}")
+
+    # Define the set of values to display in the top-right corner
+    text_values = [("x_min", x_min), ("x_max", x_max),
+              ("y_min", y_min), ("y_max", y_max),
+              ("z_min", z_min), ("z_max", z_max),
+              ("z_mean", z_mean), ("z_std", z_std)]
+
+    # Add each value to the top-right corner
+    for i, text_value in enumerate(text_values):
+        text = text_value[0]
+        value = text_value[1]
+        ax.text2D(1.2, 0.98 - i * 0.025, f"{text}: {value:.4f}",
+                transform=ax.transAxes, ha='right', va='top', fontsize=12, color='black')
 
 def save_figures(plot_type, output_path_base, fig: Figure, ax: Axes):
     '''Check output path existence. Save the figures provided by configuration->figure->views'''
@@ -248,8 +290,15 @@ def create_and_save_2D_view(plot_type, output_path_base, reference_points_df, gr
     # Scale x y axis to mantain aspect ratio. Scale z axis
     scale_xy_axis(ax2, x, y)
 
-    # Plot the contour (flat 2D view)
-    c = ax2.contourf(grid_x, grid_y, grid_z, 20, cmap='viridis')  # 20 levels in the color map
+    
+    # Custom z limits defined by configuration
+    if Config.Figure.Limits.use_custom_z_limits:
+        # Plot the contour (flat 2D view)
+        c = ax2.contourf(grid_x, grid_y, grid_z, 20, cmap='viridis',
+                         vmin=Config.Figure.Limits.z_min, vmax=Config.Figure.Limits.z_max)
+    else:
+        # Plot the contour (flat 2D view)
+        c = ax2.contourf(grid_x, grid_y, grid_z, 20, cmap='viridis')
 
     # Add color bar
     color_bar = fig2.colorbar(c) # Z Height [mm]
@@ -324,7 +373,7 @@ def process_csv_df(csv_df: DataFrame):
     biased_csv_df.iloc[:, 2] = csv_df.iloc[:, 2] + Config.ZProbeBias.y
 
     # If custom limist are provided by configuration
-    if Config.Figure.Limits.use_custom_limits:
+    if Config.Figure.Limits.use_custom_xy_limits:
         # Get the mask for those values inside the limits
         mask_x = (biased_csv_df.iloc[:, 1] >= Config.Figure.Limits.x_min) & \
                  (biased_csv_df.iloc[:, 1] <= Config.Figure.Limits.x_max)
@@ -356,12 +405,7 @@ def process_csv_df(csv_df: DataFrame):
     # Divide the max and min values in 2 even sides
     processed_csv_df.iloc[:, 3] -= z_middle
 
-    print(f"x min: {processed_csv_df.iloc[:, 1].min()}")
-    print(f"x max: {processed_csv_df.iloc[:, 1].max()}")
-    print(f"y min: {processed_csv_df.iloc[:, 2].min()}")
-    print(f"y max: {processed_csv_df.iloc[:, 2].max()}")
-    print(f"z min: {processed_csv_df.iloc[:, 3].min()}")
-    print(f"z max: {processed_csv_df.iloc[:, 3].max()}")
+    
 
     return processed_csv_df
 
@@ -401,13 +445,22 @@ def plot_surface(reference_points_df, grid_np, output_path_base):
     # Set title
     ax.set_title('Surface Plot')
 
+    # Plot the surface
     surf = ax.plot_surface(grid_x, grid_y, grid_z, cmap='viridis', edgecolor='none')
+
+    # Custom z limits defined by configuration
+    if Config.Figure.Limits.use_custom_z_limits:
+        # Set colormap limits
+        surf.set_clim(vmin=Config.Figure.Limits.z_min, vmax=Config.Figure.Limits.z_max)
 
     # Plot the points
     ax.scatter(x, y, z, c='r', marker='o', s=Config.Figure.marker_size, alpha=1.0)  # You can adjust color and marker style
 
     # Add color bar
     add_color_bar(fig, ax, surf)
+
+    # Add statistics
+    add_statistics_metrics(ax, reference_points_df)
 
     # Save 3D figures
     save_figures(plot_type, output_path_base, fig, ax)
@@ -444,15 +497,27 @@ def plot_trisurf(reference_points_df, grid_np, output_path_base):
     # Plot the surface using trisurf
     surf = ax.plot_trisurf(x_flat, y_flat, z_flat, cmap='viridis')
 
+    # Custom z limits defined by configuration
+    if Config.Figure.Limits.use_custom_z_limits:
+        # Set colormap limits
+        surf.set_clim(vmin=Config.Figure.Limits.z_min, vmax=Config.Figure.Limits.z_max)
+
     # Plot the points
     ax.scatter(x, y, z, c='r', marker='o', s=Config.Figure.marker_size, alpha=1.0)  # You can adjust color and marker style
 
+    # Add color bar
     add_color_bar(fig, ax, surf)
 
+    # Add statistics
+    add_statistics_metrics(ax, reference_points_df)
+
+    # Save 3D figures
     save_figures(plot_type, output_path_base, fig, ax)
 
+    # Save top view figure
     save_top_figure(plot_type, output_path_base, fig, ax, x, y, z)
 
+    # Create and save 2D view
     create_and_save_2D_view(plot_type, output_path_base, reference_points_df, grid_np)
 
 if __name__ == "__main__":
