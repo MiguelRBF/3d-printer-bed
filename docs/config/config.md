@@ -23,7 +23,7 @@
         "marker_size": 0.1,             // marker size for reference points
         "z_expansion": 1,               // expansion ratio for z axis in order to flatten the plots. z_limits = (z_min - Config.Figure.z_expansion * z_range; z_max + Config.Figure.z_expansion * z_range)
         "views": [                      // List of views to be plotted
-            [45, 30],                   // [azimuth, elevation] of the view
+            [45, 30],                   // (azimuth, elevation) of the view
             [135, 30],
             [225, 30],
             [315, 30]
@@ -43,7 +43,7 @@
         "aspect": 10    // lengh/width of the bar
     },
 
-    "z_probe_bias": {
+    "z_probe_bias": {   // Setup of zprobe bias [mm]. The bias with regards to the extruder.
         "x": -32,
         "y": -25
     }
