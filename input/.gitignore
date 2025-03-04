@@ -4,5 +4,11 @@
 !examples
 !examples/**
 
+# Keep PEI sheet z_offsets
+!PEI_textured
+!PEI_textured/**
+!PEI_smooth
+!PEI_smooth/**
+
 # Keep this file
 !.gitignore

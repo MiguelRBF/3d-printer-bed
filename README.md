@@ -3,7 +3,7 @@
 
 # :wavy_dash: :heavy_exclamation_mark: :zap: :bulb: 3D-printer-bed
 
-This repo is borned to provide us with an analysis tool to plot the z variations on 3D printers bed.
+This repo is born to provide us with an analysis tool to plot the z variations on 3D printers bed.
 
 With it you can create some plots (2D and 3D) to visualize the deformations of the bed.
 
@@ -17,7 +17,7 @@ With it you can create some plots (2D and 3D) to visualize the deformations of t
 **Top view 3D plot**
 ![](./docs/images/400pts/trisurf_top.png)
 
-You can tune the outputs (figure size/resolution, create diferent perspectives, modify plot limits, interpolation grid shape...) by adjusting the tool configuration.
+You can tune the outputs (figure size/resolution, create different perspectives, modify plot limits, interpolation grid shape...) by adjusting the tool configuration.
 
 # Download/libraries :arrow_down:
 
@@ -47,7 +47,7 @@ In order to install pip and all the libraries required you can execute the scrip
 
 - [install.sh](./install.sh)
 
-Git it execution permisions:
+Git it execution permissions:
 ```bash
 sudo chmod +x install.sh
 ```
@@ -84,7 +84,7 @@ To execute it you will need to provide it:
 
 1. path to **z offsets file** (csv)
 2. path to **output folder** for the images.
-3. **plot type** selection. Options: *trisurf* (surface of triangles) or *surface* (smoth surface)
+3. **plot type** selection. Options: *trisurf* (surface of triangles) or *surface* (smooth surface)
 4. path to **configuration file** [optional] 
 
 When executed from the project root directory, you will have access to the default configuration with no need to provide the path to it. i.e.:
@@ -102,3 +102,7 @@ python3 plot-bed-leveling/plot_bed_leveling.py --csv_path input/examples/z_offse
 # Bug :bug:
 
 Keep calm and be nice if you find a bug. Just tell it to me.
+
+# Some analysis
+
+1. [PEI textured vs smooth](./docs/analysis/PEI_textured_vs_smooth.md)
