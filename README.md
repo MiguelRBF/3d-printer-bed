@@ -19,7 +19,8 @@ With it you can create some plots (2D and 3D) to visualize the deformations of t
 
 You can tune the outputs (figure size/resolution, create different perspectives, modify plot limits, interpolation grid shape...) by adjusting the tool configuration.
 
-# Download/libraries :arrow_down:
+---
+# How to use it
 
 To clone the repo execute:
 ```bash
@@ -41,7 +42,20 @@ To use it you need **python3** :snake: installed with the following libraries:
 - pandas
 - scipy
 
-## Linux :penguin:
+You can either use the prepared devcontainer or manually download all.
+
+## Dev Container
+
+0. Install VsCode.
+1. Install [docker](https://www.docker.com/) :whale
+2. Install [Dev Containers extension for VsCode](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+3. Build devcontainer: F1 -> Dev Containers: Rebuild Container
+
+Then you will have anything you need to run the tool inside the dev container.
+
+## Download/libraries :arrow_down:
+
+### Linux :penguin:
 
 In order to install pip and all the libraries required you can execute the script:
 
@@ -52,9 +66,11 @@ Git it execution permissions:
 sudo chmod +x install.sh
 ```
 
-## Windows
+### Windows
 
 You just need to download the libraries from internet.
+
+---
 
 # Quick Run :running:
 

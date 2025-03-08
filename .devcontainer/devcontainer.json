@@ -1,0 +1,31 @@
+{
+    "name": "Ubuntu Jammy Development Container",
+    "context": ".",
+    "dockerFile": "Dockerfile",
+    "runArgs": [
+        "--init",
+        "--env",
+        "PYTHONPATH=/workspace"
+    ],
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash"
+            },
+            "extensions": [
+                "bierner.github-markdown-preview",
+                "bierner.markdown-emoji",
+                "mechatroner.rainbow-csv",
+                "ms-python.python",
+                "streetsidesoftware.code-spell-checker"
+            ]
+        }
+    },
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/workspace,type=bind"  // Bind the project folder into the container
+    ],
+    "postCreateCommand": "pip install -r /workspace/requirements.txt",
+    "remoteUser": "devuser",  // Use the non-root user
+    "forwardPorts": [3000, 8000],
+    "shutdownAction": "stopContainer"
+}
